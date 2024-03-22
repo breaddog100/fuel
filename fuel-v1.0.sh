@@ -340,7 +340,6 @@ function update_and_install() {
     }
 EOF
     
-    echo "正在生成P2P密钥..."
     source $HOME/.bashrc
     export PATH=$HOME/.fuelup/bin:$PATH
     echo "正在生成P2P密钥..."
@@ -382,7 +381,7 @@ function view_logs() {
         echo "Fuel服务没有启动，请手动启动服务或重新安装。"
         sleep 5
     else
-        echo "10秒后开始输出日志，退出查看日志请使用键盘组合键：Ctrl + a + d"
+        echo "10秒后开始输出日志，使用组合键：Ctrl + a + d 退出"
         sleep 10
         screen -r Fuel
     fi
@@ -392,7 +391,6 @@ function restart_fuel(){
 
     screen -X -S Fuel quit
 
-    echo "正在生成P2P密钥..."
     source $HOME/.bashrc
     export PATH=$HOME/.fuelup/bin:$PATH
     echo "正在生成P2P密钥..."
