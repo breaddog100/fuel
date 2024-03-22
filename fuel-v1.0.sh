@@ -26,7 +26,7 @@ function update_and_install() {
     fi
 
     echo "正在安装Fuel服务..."
-    if curl --retry 3 --retry-delay 5 https://get.fuel.network -o fuel_install.sh; then
+    if curl --retry 3 --retry-delay 5 https://install.fuel.network -o fuel_install.sh; then
       sh fuel_install.sh
       echo "Fuel 程序下载成功并执行。"
     else
@@ -341,7 +341,7 @@ function update_and_install() {
 EOF
     
     echo "正在生成P2P密钥..."
-    sudo source /root/.bashrc
+    source $HOME/.bashrc
     export PATH=$HOME/.fuelup/bin:$PATH
     echo "正在生成P2P密钥..."
     KEY_OUTPUT=$(fuel-core-keygen new --key-type peering)
@@ -354,8 +354,9 @@ EOF
     
     # 开始配置并运行节点
     echo "开始配置并启动您的fuel节点..."
+    sleep 3
 
-    screen -dmS Fuel bash -c "source /root/.bashrc; fuel-core run \
+    screen -dmS Fuel bash -c "source $HOME/.bashrc; fuel-core run \
     --service-name '${NODE_NAME}' \
     --keypair '${SECRET}' \
     --relayer '${RPC}' \
@@ -373,15 +374,59 @@ EOF
     "
     
     echo "服务配置和启动完成。"
+    sleep 3
 }
 
 function view_logs() {
     if ! screen -list | grep -q "Fuel"; then
-        echo "Fuel服务似乎没有运行在screen会话中。请先启动服务。"
+        echo "Fuel服务没有启动，请手动启动服务或重新安装。"
         sleep 5
     else
+        echo "10秒后开始输出日志，退出查看日志请使用键盘组合键：Ctrl + a + d"
+        sleep 10
         screen -r Fuel
     fi
+}
+
+function restart_fuel(){
+
+    screen -X -S Fuel quit
+
+    echo "正在生成P2P密钥..."
+    source $HOME/.bashrc
+    export PATH=$HOME/.fuelup/bin:$PATH
+    echo "正在生成P2P密钥..."
+    KEY_OUTPUT=$(fuel-core-keygen new --key-type peering)
+    echo "${KEY_OUTPUT}"
+    read -p "请从上方输出中复制'secret'值，并在此粘贴: " SECRET
+    
+    # 用户输入节点名称和RPC地址
+    read -p "请输入您想设置的节点名称: " NODE_NAME
+    read -p "请输入您的ETH Sepolia RPC地址: " RPC
+    
+    # 开始配置并运行节点
+    echo "开始配置并启动您的fuel节点..."
+    sleep 3
+    screen -dmS Fuel bash -c "source $HOME/.bashrc; fuel-core run \
+    --service-name '${NODE_NAME}' \
+    --keypair '${SECRET}' \
+    --relayer '${RPC}' \
+    --ip 0.0.0.0 --port 4000 --peering-port 30333 \
+    --db-path ~/.fuel_beta5 \
+    --chain ./chainConfig.json \
+    --utxo-validation --poa-instant false --enable-p2p \
+    --min-gas-price 1 --max-block-size 18874368  --max-transmit-size 18874368 \
+    --reserved-nodes /dns4/p2p-beta-5.fuel.network/tcp/30333/p2p/16Uiu2HAmSMqLSibvGCvg8EFLrpnmrXw1GZ2ADX3U2c9ttQSvFtZX,/dns4/p2p-beta-5.fuel.network/tcp/30334/p2p/16Uiu2HAmVUHZ3Yimoh4fBbFqAb3AC4QR1cyo8bUF4qyi8eiUjpVP \
+    --sync-header-batch-size 100 \
+    --enable-relayer \
+    --relayer-v2-listening-contracts 0x557c5cE22F877d975C2cB13D0a961a182d740fD5 \
+    --relayer-da-deploy-height 4867877 \
+    --relayer-log-page-size 2000
+    "
+    
+    echo "服务配置和启动完成。"
+    sleep 3
+
 }
 
 function main_menu() {
@@ -390,6 +435,7 @@ function main_menu() {
         echo "请选择要执行的操作:"
         echo "1. 安装节点"
         echo "2. 查看日志"
+        echo "3. 重启节点"
         echo "0. 退出脚本"
         
         read -p "请输入选项（0-3）: " OPTION
@@ -397,6 +443,7 @@ function main_menu() {
         case $OPTION in
             1) update_and_install ;;
             2) view_logs ;;
+            3) restart_fuel ;;
             0) echo "退出脚本。"; exit 0 ;;
             *) echo "无效选项，请重新输入。"; sleep 5 ;;
         esac
