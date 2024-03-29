@@ -430,11 +430,14 @@ function restart_fuel(){
 function main_menu() {
     while true; do
         clear
+        echo "===============Fuel一键部署脚本==============="
+        echo "BreadDog出品，电报：https://t.me/breaddog"
+        echo "最低配置：2C4G100G"
         echo "请选择要执行的操作:"
-        echo "1. 安装节点"
-        echo "2. 查看日志"
-        echo "3. 重启节点"
-        echo "0. 退出脚本"
+        echo "1. 安装节点install node"
+        echo "2. 查看日志view logs"
+        echo "3. 重启节点restart node"
+        echo "0. 退出脚本exit"
         
         read -p "请输入选项（0-3）: " OPTION
         
