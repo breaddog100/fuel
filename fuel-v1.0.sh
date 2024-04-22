@@ -431,7 +431,7 @@ function main_menu() {
     while true; do
         clear
         echo "===============Fuel一键部署脚本==============="
-        echo "BreadDog出品，电报：https://t.me/breaddog"
+        echo "沟通电报群：https://t.me/lumaogogogo"
         echo "最低配置：2C4G100G"
         echo "请选择要执行的操作:"
         echo "1. 安装节点install node"
